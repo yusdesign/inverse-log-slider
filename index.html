@@ -1,0 +1,698 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>✨ INVERSE LOG SLIDER · WIDE SLOW · TIGHT FAST</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', monospace;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #1a1a2e, #16213e);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 0;
+            padding: 20px;
+        }
+        
+        .demo-container {
+            background: rgba(255,255,255,0.05);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,255,255,0.1);
+            padding: 40px;
+            width: 800px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.4);
+        }
+        
+        h1 {
+            color: #a87bff;
+            font-size: 24px;
+            margin: 0 0 8px 0;
+            font-weight: 400;
+            letter-spacing: 1px;
+        }
+        
+        .subtitle {
+            color: #888;
+            font-size: 12px;
+            margin-bottom: 40px;
+            border-bottom: 1px solid #334;
+            padding-bottom: 20px;
+        }
+        
+        .subtitle span {
+            color: #ffb86b;
+        }
+        
+        /* ================================================
+           INVERSE LOG SLIDER - WIDE AT SLOW SIDE
+           ================================================ */
+        .slider-comparison {
+            display: flex;
+            gap: 40px;
+            margin-bottom: 40px;
+        }
+        
+        .slider-column {
+            flex: 1;
+        }
+        
+        .slider-column h3 {
+            color: #888;
+            font-size: 12px;
+            text-transform: uppercase;
+            margin-bottom: 20px;
+            letter-spacing: 1px;
+        }
+        
+        .slider-column.highlight h3 {
+            color: #ffb86b;
+        }
+        
+        .log-slider-container {
+            margin-bottom: 30px;
+            padding: 20px;
+            background: rgba(0,0,0,0.3);
+            border: 1px solid #334;
+        }
+        
+        .log-slider-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: baseline;
+            margin-bottom: 20px;
+        }
+        
+        .log-slider-label {
+            color: #a87bff;
+            font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
+        .log-slider-value {
+            color: #ffb86b;
+            font-size: 18px;
+            font-family: monospace;
+            background: rgba(0,0,0,0.5);
+            padding: 4px 12px;
+            border: 1px solid #554;
+        }
+        
+        /* RESPONSE VISUALIZATION */
+        .response-visual {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin: 15px 0;
+            height: 50px;
+        }
+        
+        .response-label {
+            color: #888;
+            font-size: 11px;
+            min-width: 45px;
+            text-transform: uppercase;
+        }
+        
+        .response-label.left {
+            color: #6cf;
+            text-align: right;
+        }
+        
+        .response-label.right {
+            color: #ffb86b;
+            text-align: left;
+        }
+        
+        .response-bars {
+            flex: 1;
+            display: flex;
+            align-items: flex-end;
+            height: 50px;
+            gap: 2px;
+        }
+        
+        .response-bar {
+            flex: 1;
+            background: linear-gradient(180deg, #2a2a4a, #1a1a3a);
+            border: 1px solid #334;
+            height: calc(100% * var(--height));
+            transition: all 0.2s;
+        }
+        
+        .response-bar.active {
+            background: linear-gradient(180deg, #a87bff, #6b4b9a);
+            border-color: #ffb86b;
+            box-shadow: 0 0 10px #a87bff;
+        }
+        
+        /* Slider input */
+        .log-slider {
+            width: 100%;
+            height: 6px;
+            background: #334;
+            outline: none;
+            -webkit-appearance: none;
+            cursor: pointer;
+            margin: 15px 0;
+        }
+        
+        .log-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 20px;
+            height: 20px;
+            background: #ffb86b;
+            cursor: pointer;
+            border: none;
+            box-shadow: 0 0 15px #ffb86b;
+        }
+        
+        /* Distribution markers */
+        .distribution-markers {
+            display: flex;
+            justify-content: space-between;
+            margin: 10px 0;
+            padding: 0 2px;
+            position: relative;
+        }
+        
+        .marker-group {
+            display: flex;
+            gap: 1px;
+            flex: 1;
+        }
+        
+        .marker {
+            width: 2px;
+            height: var(--height);
+            background: #555;
+            flex: 1;
+        }
+        
+        .marker.active {
+            background: #ffb86b;
+            box-shadow: 0 0 5px #ffb86b;
+        }
+        
+        .marker-label {
+            color: #888;
+            font-size: 9px;
+            margin-top: 5px;
+            text-align: center;
+        }
+        
+        /* Scale description */
+        .scale-description {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 15px;
+            color: #777;
+            font-size: 11px;
+            text-transform: uppercase;
+        }
+        
+        .scale-left {
+            color: #6cf;
+        }
+        
+        .scale-right {
+            color: #ffb86b;
+        }
+        
+        /* Curve comparison */
+        .curve-comparison {
+            margin-top: 40px;
+            padding: 20px;
+            background: rgba(0,0,0,0.3);
+            border: 1px solid #334;
+        }
+        
+        .curve-title {
+            color: #a87bff;
+            font-size: 12px;
+            margin-bottom: 20px;
+            text-transform: uppercase;
+        }
+        
+        .curve-grid {
+            display: flex;
+            gap: 20px;
+        }
+        
+        .curve-item {
+            flex: 1;
+        }
+        
+        .curve-item h4 {
+            color: #888;
+            font-size: 11px;
+            margin-bottom: 10px;
+        }
+        
+        .curve-bars {
+            display: flex;
+            gap: 2px;
+            height: 100px;
+            align-items: flex-end;
+        }
+        
+        .curve-bar {
+            flex: 1;
+            background: linear-gradient(180deg, #a87bff, #6b4b9a);
+            height: calc(100% * var(--value));
+            transition: height 0.3s;
+            opacity: 0.8;
+        }
+        
+        .curve-bar.highlight {
+            background: #ffb86b;
+            box-shadow: 0 0 10px #ffb86b;
+        }
+        
+        .inverse-note {
+            margin-top: 20px;
+            padding: 15px;
+            background: rgba(255, 184, 107, 0.1);
+            border: 1px solid #ffb86b;
+            color: #ffb86b;
+            font-size: 12px;
+        }
+        
+        .inverse-note code {
+            background: #000;
+            padding: 2px 6px;
+            color: #a87bff;
+        }
+        
+        .copy-btn {
+            background: transparent;
+            border: 1px solid #a87bff;
+            color: #a87bff;
+            padding: 8px 16px;
+            cursor: pointer;
+            font-size: 12px;
+            margin-top: 20px;
+        }
+        
+        .copy-btn:hover {
+            background: #a87bff;
+            color: #0a0a1a;
+        }
+        
+        * {
+            border-radius: 0 !important;
+        }
+    </style>
+</head>
+<body>
+    <div class="demo-container">
+        <h1>✨ INVERSE LOG SLIDER</h1>
+        <div class="subtitle">wide at slow side · <span>tight at fast side</span></div>
+        
+        <!-- Comparison: Standard vs Inverse -->
+        <div class="slider-comparison">
+            <!-- Standard Log Slider -->
+            <div class="slider-column">
+                <h3>📊 STANDARD LOG</h3>
+                <div id="standard-slider"></div>
+                <div style="color: #888; font-size: 10px; margin-top: 10px; text-align: center;">
+                    tight slow · wide fast
+                </div>
+            </div>
+            
+            <!-- Inverse Log Slider (What you want!) -->
+            <div class="slider-column highlight">
+                <h3>✨ INVERSE LOG (WIDE SLOW)</h3>
+                <div id="inverse-slider"></div>
+                <div style="color: #ffb86b; font-size: 10px; margin-top: 10px; text-align: center;">
+                    ⬅️ MORE CONTROL HERE · less there ➡️
+                </div>
+            </div>
+        </div>
+        
+        <!-- Distribution Visualization -->
+        <div class="curve-comparison">
+            <div class="curve-title">🎯 SLIDER RESPONSE COMPARISON</div>
+            <div class="curve-grid">
+                <div class="curve-item">
+                    <h4>STANDARD LOG</h4>
+                    <div class="curve-bars" id="standard-curve"></div>
+                    <div style="display: flex; justify-content: space-between; margin-top: 5px; color: #666; font-size: 9px;">
+                        <span>slow</span>
+                        <span>fast</span>
+                    </div>
+                </div>
+                <div class="curve-item">
+                    <h4>INVERSE LOG (WIDE SLOW)</h4>
+                    <div class="curve-bars" id="inverse-curve"></div>
+                    <div style="display: flex; justify-content: space-between; margin-top: 5px; color: #666; font-size: 9px;">
+                        <span style="color:#6cf;">← more space</span>
+                        <span style="color:#ffb86b;">less →</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Explanation -->
+        <div class="inverse-note">
+            <strong>🔧 INVERSE LOG FORMULA:</strong><br>
+            <code>t = sliderPos / 100</code><br>
+            <code>curved = 1 - Math.pow(1 - t, exp)</code> ← This spreads slow side, compresses fast side!<br>
+            <span style="color:#888; font-size: 11px; margin-top: 10px; display: block;">
+                Result: First 50% of slider covers 0.01-0.30 (wide), last 50% covers 0.30-2.00 (tight)
+            </span>
+        </div>
+        
+        <!-- Copy button -->
+        <button class="copy-btn" onclick="copyCode()">📋 COPY INVERSE LOG CLASS</button>
+    </div>
+
+    <script>
+        // ================================================
+        // SLIDER BASE CLASS
+        // ================================================
+        class BaseSlider {
+            constructor(containerId, label, min, max, initial, exp, isInverse = false) {
+                this.container = document.getElementById(containerId);
+                this.min = min;
+                this.max = max;
+                this.exp = exp;
+                this.value = initial;
+                this.isInverse = isInverse;
+                this.label = label;
+                
+                this.createDOM();
+                this.updateResponseBars(this.value);
+            }
+            
+            // Standard log: t^exp
+            standardLog(t) {
+                return Math.pow(t, this.exp);
+            }
+            
+            // INVERSE log: 1 - (1-t)^exp  ← THIS IS THE MAGIC!
+            inverseLog(t) {
+                return 1 - Math.pow(1 - t, this.exp);
+            }
+            
+            sliderToValue(sliderPos) {
+                const t = sliderPos / 100;
+                const curved = this.isInverse ? this.inverseLog(t) : this.standardLog(t);
+                return this.min + (this.max - this.min) * curved;
+            }
+            
+            valueToSlider(val) {
+                const t = (val - this.min) / (this.max - this.min);
+                
+                if (this.isInverse) {
+                    // Inverse: solve 1 - (1-t)^exp = T
+                    // (1-t)^exp = 1 - T
+                    // 1-t = (1 - T)^(1/exp)
+                    // t = 1 - (1 - T)^(1/exp)
+                    const curved = 1 - Math.pow(1 - t, 1 / this.exp);
+                    return curved * 100;
+                } else {
+                    const curved = Math.pow(t, 1 / this.exp);
+                    return curved * 100;
+                }
+            }
+            
+            createDOM() {
+                // Wrapper
+                const wrapper = document.createElement('div');
+                wrapper.className = 'log-slider-container';
+                
+                // Header
+                const header = document.createElement('div');
+                header.className = 'log-slider-header';
+                header.innerHTML = `
+                    <span class="log-slider-label">${this.label}</span>
+                    <span class="log-slider-value" id="${this.label}-value">${this.value.toFixed(3)}</span>
+                `;
+                
+                // Response visualization
+                const responseVis = document.createElement('div');
+                responseVis.className = 'response-visual';
+                responseVis.innerHTML = `
+                    <span class="response-label left">SLOW</span>
+                    <div class="response-bars" id="${this.label}-bars"></div>
+                    <span class="response-label right">FAST</span>
+                `;
+                
+                // Create 20 response bars
+                const barsContainer = responseVis.querySelector(`#${this.label}-bars`);
+                for (let i = 0; i < 20; i++) {
+                    const bar = document.createElement('div');
+                    bar.className = 'response-bar';
+                    barsContainer.appendChild(bar);
+                }
+                
+                // Slider input
+                const slider = document.createElement('input');
+                slider.type = 'range';
+                slider.className = 'log-slider';
+                slider.min = 0;
+                slider.max = 100;
+                slider.value = this.valueToSlider(this.value);
+                
+                // Distribution markers (shows value spacing)
+                const markers = document.createElement('div');
+                markers.className = 'distribution-markers';
+                
+                // Create 10 marker groups
+                for (let g = 0; g < 10; g++) {
+                    const group = document.createElement('div');
+                    group.className = 'marker-group';
+                    
+                    // Each group has 3 markers of varying heights
+                    for (let m = 0; m < 3; m++) {
+                        const marker = document.createElement('div');
+                        marker.className = 'marker';
+                        marker.style.setProperty('--height', (3 + m * 2) + 'px');
+                        group.appendChild(marker);
+                    }
+                    markers.appendChild(group);
+                }
+                
+                // Scale description
+                const scaleDesc = document.createElement('div');
+                scaleDesc.className = 'scale-description';
+                scaleDesc.innerHTML = `
+                    <span class="scale-left">← WIDE CONTROL</span>
+                    <span>${this.min.toFixed(3)}</span>
+                    <span>⇢</span>
+                    <span>${this.max.toFixed(1)}</span>
+                    <span class="scale-right">TIGHT →</span>
+                `;
+                
+                // Assemble
+                wrapper.appendChild(header);
+                wrapper.appendChild(responseVis);
+                wrapper.appendChild(slider);
+                wrapper.appendChild(markers);
+                wrapper.appendChild(scaleDesc);
+                
+                this.container.appendChild(wrapper);
+                
+                // Store references
+                this.wrapper = wrapper;
+                this.slider = slider;
+                this.valueDisplay = header.querySelector(`.log-slider-value`);
+                this.bars = barsContainer.querySelectorAll('.response-bar');
+                
+                // Bind event
+                slider.addEventListener('input', (e) => {
+                    const sliderPos = parseInt(e.target.value);
+                    this.value = this.sliderToValue(sliderPos);
+                    this.valueDisplay.textContent = this.value.toFixed(3);
+                    this.updateResponseBars(this.value);
+                    
+                    // Update global comparison
+                    updateComparison();
+                });
+            }
+            
+            updateResponseBars(value) {
+                const totalBars = this.bars.length;
+                
+                // Calculate active bar
+                const t = (value - this.min) / (this.max - this.min);
+                const activeBar = Math.min(totalBars - 1, Math.floor(t * totalBars));
+                
+                // Update each bar
+                this.bars.forEach((bar, i) => {
+                    // Bar value
+                    const barPercent = (i / totalBars) * 100;
+                    const barValue = this.sliderToValue(barPercent);
+                    
+                    // Step size (resolution)
+                    const nextPercent = ((i + 1) / totalBars) * 100;
+                    const nextValue = this.sliderToValue(nextPercent);
+                    const stepSize = (nextValue - barValue) / (this.max - this.min);
+                    
+                    // Height shows resolution (inverse relationship)
+                    const resolution = Math.max(0.3, Math.min(1.0, 0.5 / stepSize));
+                    bar.style.setProperty('--height', resolution);
+                    
+                    // Active state
+                    if (i <= activeBar) {
+                        bar.classList.add('active');
+                    } else {
+                        bar.classList.remove('active');
+                    }
+                });
+            }
+            
+            getValue() {
+                return this.value;
+            }
+        }
+        
+        // ================================================
+        // Create both sliders
+        // ================================================
+        const min = 0.01;  // Still
+        const max = 2.0;   // River
+        const exp = 2.2;   // Curve factor
+        
+        // Standard log slider
+        const standardSlider = new BaseSlider(
+            'standard-slider',
+            'STANDARD',
+            min, max, 0.15, exp,
+            false // standard
+        );
+        
+        // INVERSE log slider (what you want!)
+        const inverseSlider = new BaseSlider(
+            'inverse-slider',
+            'INVERSE',
+            min, max, 0.15, exp,
+            true // inverse = wide slow, tight fast
+        );
+        
+        // ================================================
+        // Update comparison curves
+        // ================================================
+        function updateComparison() {
+            const standardCurve = document.getElementById('standard-curve');
+            const inverseCurve = document.getElementById('inverse-curve');
+            
+            const steps = 30;
+            
+            // Clear curves
+            standardCurve.innerHTML = '';
+            inverseCurve.innerHTML = '';
+            
+            // Generate curve data
+            for (let i = 0; i <= steps; i++) {
+                const percent = (i / steps) * 100;
+                
+                // Standard values
+                const standardT = percent / 100;
+                const standardCurved = Math.pow(standardT, exp);
+                const standardValue = min + (max - min) * standardCurved;
+                
+                // Inverse values
+                const inverseT = percent / 100;
+                const inverseCurved = 1 - Math.pow(1 - inverseT, exp);
+                const inverseValue = min + (max - min) * inverseCurved;
+                
+                // Create bars
+                if (i < steps) {
+                    // Standard bar
+                    const sBar = document.createElement('div');
+                    sBar.className = 'curve-bar';
+                    const sNextPercent = ((i + 1) / steps) * 100;
+                    const sNextT = sNextPercent / 100;
+                    const sNextCurved = Math.pow(sNextT, exp);
+                    const sNextValue = min + (max - min) * sNextCurved;
+                    const sIncrement = (sNextValue - standardValue) / (max - min);
+                    sBar.style.setProperty('--value', Math.min(1.0, sIncrement * 5));
+                    
+                    // Highlight current position
+                    const currentT = (inverseSlider.getValue() - min) / (max - min);
+                    if (i === Math.floor(currentT * steps)) {
+                        sBar.classList.add('highlight');
+                    }
+                    
+                    standardCurve.appendChild(sBar);
+                    
+                    // Inverse bar
+                    const iBar = document.createElement('div');
+                    iBar.className = 'curve-bar';
+                    const iNextPercent = ((i + 1) / steps) * 100;
+                    const iNextT = iNextPercent / 100;
+                    const iNextCurved = 1 - Math.pow(1 - iNextT, exp);
+                    const iNextValue = min + (max - min) * iNextCurved;
+                    const iIncrement = (iNextValue - inverseValue) / (max - min);
+                    iBar.style.setProperty('--value', Math.min(1.0, iIncrement * 5));
+                    
+                    // Highlight current position
+                    if (i === Math.floor(currentT * steps)) {
+                        iBar.classList.add('highlight');
+                    }
+                    
+                    inverseCurve.appendChild(iBar);
+                }
+            }
+            
+            // Add value markers
+            const standardMarker = document.createElement('div');
+            standardMarker.style.cssText = 'text-align:center; margin-top:5px; color:#888; font-size:9px;';
+            
+            const inverseMarker = document.createElement('div');
+            inverseMarker.style.cssText = 'text-align:center; margin-top:5px; color:#888; font-size:9px;';
+        }
+        
+        // Initial update
+        updateComparison();
+        
+        // ================================================
+        // Copy code
+        // ================================================
+        window.copyCode = function() {
+            const code = `// INVERSE LOG SLIDER - Wide at slow side, tight at fast side
+class InverseLogSlider {
+    constructor(min, max, exp = 2.2) {
+        this.min = min;
+        this.max = max;
+        this.exp = exp;
+    }
+    
+    // Magic formula: 1 - (1-t)^exp
+    // This spreads the low end, compresses the high end
+    sliderToValue(sliderPos) {
+        const t = sliderPos / 100;
+        const curved = 1 - Math.pow(1 - t, this.exp);
+        return this.min + (this.max - this.min) * curved;
+    }
+    
+    valueToSlider(val) {
+        const t = (val - this.min) / (this.max - this.min);
+        const curved = 1 - Math.pow(1 - t, 1 / this.exp);
+        return curved * 100;
+    }
+    
+    // Example: For flow control (Still=0.01, River=2.0)
+    // Slider 0-50% → 0.01-0.30 (wide control)
+    // Slider 50-100% → 0.30-2.00 (tight control)
+}`;
+            
+            navigator.clipboard.writeText(code).then(() => {
+                const btn = document.querySelector('.copy-btn');
+                btn.textContent = '✓ COPIED!';
+                setTimeout(() => {
+                    btn.textContent = '📋 COPY INVERSE LOG CLASS';
+                }, 2000);
+            });
+        };
+    </script>
+</body>
+</html>
